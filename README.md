@@ -61,6 +61,8 @@ x-businessfeed-signature: sha256=<hex hmac of raw JSON body using WEBHOOK_SECRET
 
 For local-only experiments, set `ALLOW_UNSIGNED_WEBHOOKS=true`.
 
+`/api/ingest/zapier` and `/api/ingest/batch` require that signature when unsigned webhooks are disabled. Set `APP_ORIGIN` or comma-separated `ALLOWED_ORIGINS` to the exact browser origins allowed to call the API.
+
 ## Event shape
 
 ```ts

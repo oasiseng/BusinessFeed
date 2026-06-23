@@ -37,7 +37,7 @@ export function FeedItemCard({ item, onRead, onSave, onDismiss }: FeedItemCardPr
               <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-sm">
                 <span className="max-w-full truncate font-semibold text-ink">{actor}</span>
                 <span className="text-slate-500">@{sourceLabel(item).replace(/\s+/g, "").toLowerCase()}</span>
-                <span className="text-slate-400">·</span>
+                <span className="text-slate-400">-</span>
                 <time className="text-slate-500" dateTime={item.occurredAt}>
                   {relativeTime(item.occurredAt)}
                 </time>
@@ -78,9 +78,9 @@ export function FeedItemCard({ item, onRead, onSave, onDismiss }: FeedItemCardPr
           ) : null}
 
           <div className="mt-3 grid grid-cols-5 items-center gap-1 text-slate-500 sm:max-w-md">
-            <button className="action-button" title="Mark read" type="button" onClick={() => onRead(item)} aria-pressed={item.state.read}>
+            <button className="action-button" title={item.state.read ? "Mark unread" : "Mark read"} type="button" onClick={() => onRead(item)} aria-pressed={item.state.read}>
               {item.state.read ? <Check size={18} /> : <Eye size={18} />}
-              <span>{item.state.read ? "Read" : "Read"}</span>
+              <span>{item.state.read ? "Unread" : "Read"}</span>
             </button>
             <button className="action-button" title="Save" type="button" onClick={() => onSave(item)} aria-pressed={item.state.saved}>
               {item.state.saved ? <BookmarkCheck size={18} /> : <Bookmark size={18} />}

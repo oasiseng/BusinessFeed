@@ -1,10 +1,10 @@
 import cors from "@fastify/cors";
-import fastify, { FastifyInstance, FastifyRequest } from "fastify";
+import fastify, { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import fastifyStatic from "@fastify/static";
 import { existsSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { z } from "zod";
+import { z, ZodError } from "zod";
 import { normalizeZapierEvent } from "../../../packages/connectors/src/index";
 import { ActivityEventSchema, FeedViewSchema, ItemStatePatchSchema } from "../../../packages/shared/src/index";
 import { ApiConfig, loadConfig } from "./config";
@@ -45,7 +45,29 @@ export async function createApp(options: CreateAppOptions = {}): Promise<Fastify
     }
   });
 
-  await app.register(cors, { origin: true });
+  app.setErrorHandler((error, _request, reply) => {
+    if (error instanceof ZodError) {
+      return reply.code(400).send({
+        error: "Invalid request",
+        issues: error.issues.map((issue) => ({
+          path: issue.path.join("."),
+          message: issue.message
+        }))
+      });
+    }
+    if (error instanceof SyntaxError) return reply.code(400).send({ error: "Invalid JSON" });
+    return reply.send(error);
+  });
+
+  await app.register(cors, {
+    origin: (origin, callback) => {
+      if (!origin || config.allowedOrigins.includes(origin)) {
+        callback(null, true);
+        return;
+      }
+      callback(null, false);
+    }
+  });
 
   app.get("/api/health", async () => ({
     ok: true,
@@ -77,20 +99,14 @@ export async function createApp(options: CreateAppOptions = {}): Promise<Fastify
   });
 
   app.post("/api/ingest/zapier", async (request, reply) => {
-    if (!config.allowUnsignedWebhooks) {
-      if (!config.webhookSecret) return reply.code(500).send({ error: "WEBHOOK_SECRET is required when unsigned webhooks are disabled" });
-      const signature = request.headers["x-businessfeed-signature"];
-      const signatureValue = Array.isArray(signature) ? signature[0] : signature;
-      if (!request.rawBody || !verifyHmacSignature(request.rawBody, signatureValue, config.webhookSecret)) {
-        return reply.code(401).send({ error: "Invalid webhook signature" });
-      }
-    }
+    if (!verifySignedRequest(request, reply, config)) return reply;
 
     const item = upsertActivityEvent(handle, normalizeZapierEvent(request.body));
     return reply.code(201).send({ item });
   });
 
   app.post("/api/ingest/batch", async (request, reply) => {
+    if (!verifySignedRequest(request, reply, config)) return reply;
     const parsed = BatchBodySchema.parse(request.body);
     const events = Array.isArray(parsed) ? parsed : parsed.events;
     const items = ingestMany(handle, events);
@@ -105,12 +121,27 @@ export async function createApp(options: CreateAppOptions = {}): Promise<Fastify
     return { item };
   });
 
-  if (options.serveStatic !== false) registerStatic(app, config);
+  if (options.serveStatic !== false) await registerStatic(app, config);
 
   return app;
 }
 
-function registerStatic(app: FastifyInstance, config: ApiConfig): void {
+function verifySignedRequest(request: FastifyRequest, reply: FastifyReply, config: ApiConfig): boolean {
+  if (config.allowUnsignedWebhooks) return true;
+  if (!config.webhookSecret) {
+    reply.code(500).send({ error: "WEBHOOK_SECRET is required when unsigned webhooks are disabled" });
+    return false;
+  }
+  const signature = request.headers["x-businessfeed-signature"];
+  const signatureValue = Array.isArray(signature) ? signature[0] : signature;
+  if (!request.rawBody || !verifyHmacSignature(request.rawBody, signatureValue, config.webhookSecret)) {
+    reply.code(401).send({ error: "Invalid webhook signature" });
+    return false;
+  }
+  return true;
+}
+
+async function registerStatic(app: FastifyInstance, config: ApiConfig): Promise<void> {
   const currentDir = dirname(fileURLToPath(import.meta.url));
   const defaultDist = resolve(currentDir, "../../web/dist");
   const dist = config.webDistDir ? resolve(config.webDistDir) : defaultDist;
@@ -119,7 +150,7 @@ function registerStatic(app: FastifyInstance, config: ApiConfig): void {
     return;
   }
 
-  app.register(fastifyStatic, {
+  await app.register(fastifyStatic, {
     root: dist,
     prefix: "/"
   });

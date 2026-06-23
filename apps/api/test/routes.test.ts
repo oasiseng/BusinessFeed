@@ -40,30 +40,34 @@ describe("api routes", () => {
     const ingested = ingest.json();
     expect(ingested.item.category).toBe("lead");
 
+    const batchBody = JSON.stringify({
+      events: [
+        {
+          source: "QuickBooks",
+          sourceType: "quickbooks",
+          externalId: "payment-1",
+          occurredAt: new Date().toISOString(),
+          title: "Payment received",
+          body: "Generic receipt from QuickBooks."
+        },
+        {
+          source: "Trello",
+          sourceType: "trello",
+          externalId: "card-1",
+          occurredAt: new Date().toISOString(),
+          title: "Review permit plan comments",
+          body: "Please confirm final notes."
+        }
+      ]
+    });
     const batch = await app.inject({
       method: "POST",
       url: "/api/ingest/batch",
-      headers: { "content-type": "application/json" },
-      payload: {
-        events: [
-          {
-            source: "QuickBooks",
-            sourceType: "quickbooks",
-            externalId: "payment-1",
-            occurredAt: new Date().toISOString(),
-            title: "Payment received",
-            body: "Generic receipt from QuickBooks."
-          },
-          {
-            source: "Trello",
-            sourceType: "trello",
-            externalId: "card-1",
-            occurredAt: new Date().toISOString(),
-            title: "Review permit plan comments",
-            body: "Please confirm final notes."
-          }
-        ]
-      }
+      headers: {
+        "content-type": "application/json",
+        "x-businessfeed-signature": sign(batchBody)
+      },
+      payload: batchBody
     });
     expect(batch.statusCode).toBe(201);
 
@@ -106,6 +110,59 @@ describe("api routes", () => {
     });
 
     expect(response.statusCode).toBe(401);
+    await app.close();
+  });
+
+  it("rejects unsigned batch ingest when signatures are required", async () => {
+    const app = await createApp({
+      dbPath: ":memory:",
+      webhookSecret: secret,
+      allowUnsignedWebhooks: false,
+      serveStatic: false
+    });
+
+    const response = await app.inject({
+      method: "POST",
+      url: "/api/ingest/batch",
+      headers: { "content-type": "application/json" },
+      payload: { events: [] }
+    });
+
+    expect(response.statusCode).toBe(401);
+    await app.close();
+  });
+
+  it("returns 400 for invalid request payloads and query strings", async () => {
+    const app = await createApp({
+      dbPath: ":memory:",
+      webhookSecret: secret,
+      allowUnsignedWebhooks: false,
+      serveStatic: false
+    });
+
+    const feed = await app.inject("/api/feed?limit=-5");
+    expect(feed.statusCode).toBe(400);
+
+    const state = await app.inject({
+      method: "POST",
+      url: "/api/items/missing/state",
+      headers: { "content-type": "application/json" },
+      payload: {}
+    });
+    expect(state.statusCode).toBe(400);
+
+    const malformedBatchBody = JSON.stringify({ events: [{ source: "Website" }] });
+    const malformedBatch = await app.inject({
+      method: "POST",
+      url: "/api/ingest/batch",
+      headers: {
+        "content-type": "application/json",
+        "x-businessfeed-signature": sign(malformedBatchBody)
+      },
+      payload: malformedBatchBody
+    });
+    expect(malformedBatch.statusCode).toBe(400);
+
     await app.close();
   });
 });
