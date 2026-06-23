@@ -4,6 +4,8 @@ BusinessFeed is a self-hosted activity feed for small business owners who want t
 
 The first implementation is read-only for external systems. It ranks and summarizes activity, stores local feed state, and links back to source systems.
 
+<img width="1291" height="1839" alt="image" src="https://github.com/user-attachments/assets/2e72993a-6115-42aa-b530-049f6453d850" />
+
 ## What is included
 
 - React + Vite timeline UI with dense filters, source chips, saved/read/dismissed state, and useful-media rendering.
