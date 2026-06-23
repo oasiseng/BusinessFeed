@@ -1,0 +1,16 @@
+services:
+  businessfeed:
+    build: .
+    ports:
+      - "4317:4317"
+    env_file:
+      - .env
+    environment:
+      HOST: 0.0.0.0
+      PORT: 4317
+      BUSINESSFEED_DB_PATH: /app/data/businessfeed.sqlite
+    volumes:
+      - businessfeed-data:/app/data
+
+volumes:
+  businessfeed-data:

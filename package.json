@@ -1,0 +1,36 @@
+{
+  "name": "businessfeed",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A self-hosted business activity feed with read-only connectors and a fast timeline UI.",
+  "license": "MIT",
+  "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "concurrently -n api,web -c cyan,green \"npm run dev -w @businessfeed/api\" \"npm run dev -w @businessfeed/web\"",
+    "build": "npm run build --workspaces --if-present",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "typecheck": "tsc -b",
+    "db:note": "node -e \"console.log('BusinessFeed creates local SQLite tables on API startup; add generated migrations when schema history is needed.')\"",
+    "seed": "npm run seed -w @businessfeed/api",
+    "format:check": "prettier --check .",
+    "secret-scan": "node scripts/secret-scan.mjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.54.1",
+    "@types/node": "^24.0.4",
+    "concurrently": "^9.2.0",
+    "esbuild": "^0.28.1",
+    "prettier": "^3.6.0",
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.4"
+  },
+  "overrides": {
+    "esbuild": "^0.28.1"
+  }
+}

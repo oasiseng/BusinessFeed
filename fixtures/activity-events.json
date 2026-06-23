@@ -1,0 +1,109 @@
+[
+  {
+    "source": "Website",
+    "sourceType": "website",
+    "externalId": "lead-2026-06-23-001",
+    "occurredAt": "2026-06-23T13:42:00.000Z",
+    "actor": { "name": "Maya Chen", "email": "maya@example.com" },
+    "title": "New lead from website form",
+    "body": "Needs a stamped deck repair proposal and asked whether photos are enough for preliminary review.",
+    "url": "https://example.com/admin/leads/lead-2026-06-23-001"
+  },
+  {
+    "source": "Trello",
+    "sourceType": "trello",
+    "externalId": "trello-card-8842",
+    "occurredAt": "2026-06-23T13:18:00.000Z",
+    "actor": { "name": "Alex Rivera" },
+    "title": "Permit plan comments moved to Review",
+    "body": "Please confirm the revised footing note before the package is returned to the client.",
+    "url": "https://trello.com/c/example8842"
+  },
+  {
+    "source": "Outlook",
+    "sourceType": "email",
+    "externalId": "mail-19371",
+    "occurredAt": "2026-06-23T12:55:00.000Z",
+    "actor": { "name": "Renee Foster", "email": "renee@example.com" },
+    "title": "Please review balcony inspection photos",
+    "body": "Can you tell us if these field photos are enough to quote the repair letter?",
+    "url": "https://outlook.office.com/mail/example",
+    "media": [
+      {
+        "kind": "image",
+        "url": "https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=1200&q=80",
+        "label": "field photo"
+      }
+    ]
+  },
+  {
+    "source": "QuickBooks",
+    "sourceType": "quickbooks",
+    "externalId": "qb-payment-4421",
+    "occurredAt": "2026-06-23T12:20:00.000Z",
+    "actor": { "name": "North Pier LLC" },
+    "title": "Payment received for project invoice",
+    "body": "$1,250 paid on invoice 1048 for dock repair plan review.",
+    "url": "https://app.qbo.intuit.com/app/recvpayment"
+  },
+  {
+    "source": "Quotient",
+    "sourceType": "quotient",
+    "externalId": "quote-7714",
+    "occurredAt": "2026-06-23T11:48:00.000Z",
+    "actor": { "name": "Sam Patel" },
+    "title": "Proposal viewed",
+    "body": "Client viewed the garage framing engineering proposal and has not accepted yet.",
+    "url": "https://go.quotientapp.com/quote/example"
+  },
+  {
+    "source": "Quo",
+    "sourceType": "quo",
+    "externalId": "quo-msg-2408",
+    "occurredAt": "2026-06-23T11:05:00.000Z",
+    "actor": { "name": "Jordan Kim" },
+    "title": "Site message on farmhouse framing",
+    "body": "Would you review the beam pocket photo before we close the wall?",
+    "url": "https://quo.example.com/messages/2408",
+    "media": [
+      {
+        "kind": "image",
+        "url": "https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?auto=format&fit=crop&w=1200&q=80",
+        "label": "project photo"
+      }
+    ]
+  },
+  {
+    "source": "Outlook",
+    "sourceType": "email",
+    "externalId": "mail-dmarc-021",
+    "occurredAt": "2026-06-23T10:10:00.000Z",
+    "title": "DMARC aggregate report",
+    "body": "Automated no-reply digest from mail provider."
+  },
+  {
+    "source": "Outlook",
+    "sourceType": "email",
+    "externalId": "mail-claim-481",
+    "occurredAt": "2026-06-22T20:30:00.000Z",
+    "actor": { "name": "Claims Desk", "email": "claims@example.com" },
+    "title": "Insurance claim document request",
+    "body": "Carrier asks for the project file and any field notes related to the foundation letter.",
+    "url": "https://outlook.office.com/mail/claim-example"
+  },
+  {
+    "source": "Website",
+    "sourceType": "website",
+    "externalId": "brand-logo-update",
+    "occurredAt": "2026-06-22T19:15:00.000Z",
+    "title": "Profile logo synced",
+    "body": "Website profile image was refreshed.",
+    "media": [
+      {
+        "kind": "image",
+        "url": "https://example.com/logo.png",
+        "label": "company logo"
+      }
+    ]
+  }
+]
